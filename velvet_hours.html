@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>The Velvet Hours — A Gothic Novella</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;900&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Playfair+Display:ital,wght@0,400;1,400;1,700&display=swap" rel="stylesheet"/>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #080808;
+  --bg-side:   #0c0003;
+  --bg-hover:  #140008;
+  --crimson:   #8B0000;
+  --rose:      #A50010;
+  --gold:      #C9A84C;
+  --gold-dim:  #8a6e2e;
+  --cream:     #E8D9C0;
+  --muted:     #8a7460;
+  --faint:     #3a2a1a;
+  --sidebar-w: 270px;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--cream);
+  font-family: 'EB Garamond', Georgia, serif;
+  overflow-x: hidden;
+  font-size: 18px;
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--crimson); border-radius: 3px; }
+
+/* ══════════════════════════════════════════
+   ENTRANCE SCREEN
+══════════════════════════════════════════ */
+#entrance {
+  position: fixed; inset: 0; z-index: 9999;
+  background: radial-gradient(ellipse at center, #150004 0%, #050000 55%, #000 100%);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 1.8rem; text-align: center; padding: 2rem;
+  transition: opacity 1.4s ease;
+}
+#entrance.fade-out { opacity: 0; pointer-events: none; }
+
+.e-petals { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.e-petal {
+  position: absolute; top: -50px; color: var(--rose); opacity: 0;
+  animation: eFall linear infinite;
+}
+@keyframes eFall {
+  0%   { transform: translateY(-50px) rotate(0deg);   opacity: 0; }
+  8%   { opacity: 0.5; }
+  92%  { opacity: 0.2; }
+  100% { transform: translateY(110vh) rotate(540deg); opacity: 0; }
+}
+
+.e-overline {
+  font-family: 'Cinzel', serif; font-size: 0.65rem;
+  letter-spacing: 0.7em; color: var(--rose); opacity: 0.6;
+  text-transform: uppercase;
+}
+.e-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(2rem, 6vw, 4.5rem); font-weight: 900;
+  color: var(--gold); letter-spacing: 0.06em; line-height: 1.1;
+  text-shadow: 0 0 60px rgba(201,168,76,.5), 0 0 120px rgba(139,0,0,.3);
+  animation: titlePulse 3.5s ease-in-out infinite alternate;
+}
+@keyframes titlePulse {
+  from { text-shadow: 0 0 40px rgba(201,168,76,.3), 0 0 80px rgba(139,0,0,.2); }
+  to   { text-shadow: 0 0 80px rgba(201,168,76,.7), 0 0 140px rgba(165,0,16,.5); }
+}
+.e-author {
+  font-family: 'Playfair Display', serif; font-style: italic;
+  font-size: clamp(0.85rem, 2vw, 1.1rem); color: var(--muted); letter-spacing: 0.25em;
+}
+.e-divider { width: 120px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); opacity: 0.4; }
+.e-desc {
+  font-family: 'EB Garamond', serif; font-style: italic;
+  font-size: clamp(0.9rem, 1.8vw, 1.1rem); color: var(--muted);
+  max-width: 420px; line-height: 1.8; opacity: 0.7;
+}
+.e-btn {
+  padding: 0.9rem 3rem; background: transparent;
+  border: 1px solid var(--gold); color: var(--gold);
+  font-family: 'Cinzel', serif; font-size: 0.8rem;
+  letter-spacing: 0.5em; text-transform: uppercase;
+  cursor: pointer; position: relative; overflow: hidden;
+  transition: color 0.4s; outline: none; margin-top: 0.5rem;
+}
+.e-btn::before {
+  content: ''; position: absolute; inset: 0; background: var(--gold);
+  transform: scaleX(0); transform-origin: left; transition: transform 0.4s; z-index: -1;
+}
+.e-btn:hover::before { transform: scaleX(1); }
+.e-btn:hover { color: #080808; }
+.e-heartbeat { color: var(--rose); opacity: 0.4; font-size: 1rem; letter-spacing: 1rem; animation: hb 2s infinite; }
+@keyframes hb { 0%,100%{transform:scale(1)} 15%{transform:scale(1.2)} 30%{transform:scale(1)} 45%{transform:scale(1.1)} }
+
+/* ══════════════════════════════════════════
+   MUSIC OVERLAY
+══════════════════════════════════════════ */
+#music-awaken {
+  display: none; position: fixed; inset: 0; z-index: 8888;
+  background: rgba(0,0,0,.85); backdrop-filter: blur(6px);
+  flex-direction: column; align-items: center; justify-content: center; gap: 1.8rem;
+  animation: fadeIn .8s ease forwards;
+}
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+.aw-note {
+  font-size: 3.5rem; color: var(--gold); opacity: .7;
+  animation: noteFloat 2.2s ease-in-out infinite;
+  text-shadow: 0 0 30px rgba(201,168,76,.4);
+}
+@keyframes noteFloat { 0%,100%{transform:translateY(0) rotate(-8deg)} 50%{transform:translateY(-14px) rotate(8deg)} }
+.aw-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(1.1rem, 3vw, 1.8rem); color: var(--gold); letter-spacing: .1em;
+}
+.aw-sub {
+  font-family: 'EB Garamond', serif; font-style: italic;
+  font-size: clamp(.9rem, 2vw, 1.1rem); color: var(--muted); letter-spacing: .15em;
+}
+.aw-play {
+  padding: .9rem 3.2rem; background: transparent;
+  border: 1px solid var(--rose); color: var(--rose);
+  font-family: 'Cinzel', serif; font-size: .8rem; letter-spacing: .45em;
+  text-transform: uppercase; cursor: pointer; position: relative; overflow: hidden;
+  transition: color .4s; outline: none;
+}
+.aw-play::before {
+  content: ''; position: absolute; inset: 0; background: var(--rose);
+  transform: scaleX(0); transform-origin: left; transition: transform .4s; z-index: -1;
+}
+.aw-play:hover::before { transform: scaleX(1); }
+.aw-play:hover { color: #fff; }
+.aw-skip {
+  background: none; border: none; color: var(--muted); opacity: .4;
+  font-family: 'Cinzel', serif; font-size: .65rem; letter-spacing: .35em;
+  text-transform: uppercase; cursor: pointer;
+}
+.aw-skip:hover { opacity: .7; }
+#yt-box { position: fixed; bottom: -999px; right: -999px; width: 1px; height: 1px; z-index: -1; opacity: 0; pointer-events: none; }
+#yt-box iframe { width: 1px; height: 1px; }
+
+/* ══════════════════════════════════════════
+   PROGRESS BAR
+══════════════════════════════════════════ */
+#progress-bar {
+  position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+  background: linear-gradient(90deg, var(--crimson), var(--rose), var(--gold));
+  z-index: 1000; transition: width .1s linear;
+  box-shadow: 0 0 8px rgba(165,0,16,.6);
+}
+
+/* ══════════════════════════════════════════
+   TOP BAR
+══════════════════════════════════════════ */
+#topbar {
+  display: none; position: fixed; top: 0; left: 0; right: 0; z-index: 500;
+  height: 56px;
+  background: rgba(8,8,8,.95); backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(139,0,0,.2);
+  align-items: center; padding: 0 1.5rem;
+  gap: 1rem;
+}
+.topbar-toggle {
+  width: 36px; height: 36px; background: none; border: none;
+  cursor: pointer; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 5px; flex-shrink: 0;
+}
+.topbar-toggle span {
+  display: block; width: 20px; height: 1px; background: var(--gold); opacity: .6;
+  transition: opacity .3s;
+}
+.topbar-toggle:hover span { opacity: 1; }
+.topbar-book {
+  font-family: 'Cinzel', serif; font-size: .75rem;
+  letter-spacing: .3em; color: var(--gold); opacity: .7;
+  text-transform: uppercase; flex: 1; text-align: center;
+}
+.topbar-controls { display: flex; align-items: center; gap: .8rem; flex-shrink: 0; }
+.font-btn {
+  background: none; border: 1px solid rgba(201,168,76,.2); color: var(--muted);
+  font-family: 'Cinzel', serif; font-size: .65rem; letter-spacing: .15em;
+  padding: .3rem .6rem; cursor: pointer; transition: border-color .3s, color .3s;
+}
+.font-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+/* ══════════════════════════════════════════
+   SIDEBAR
+══════════════════════════════════════════ */
+#sidebar {
+  display: none; position: fixed; top: 56px; left: 0; bottom: 0;
+  width: var(--sidebar-w);
+  background: var(--bg-side);
+  border-right: 1px solid rgba(139,0,0,.15);
+  overflow-y: auto; z-index: 400;
+  transform: translateX(0); transition: transform .35s ease;
+  padding: 2rem 0 4rem;
+}
+#sidebar.collapsed { transform: translateX(calc(-1 * var(--sidebar-w))); }
+#sidebar::-webkit-scrollbar { width: 2px; }
+#sidebar::-webkit-scrollbar-thumb { background: var(--crimson); }
+
+.sidebar-label {
+  font-family: 'Cinzel', serif; font-size: .6rem; letter-spacing: .5em;
+  color: var(--rose); opacity: .5; text-transform: uppercase;
+  padding: 0 1.5rem; margin-bottom: 1.2rem;
+}
+.toc-item {
+  display: flex; align-items: baseline; gap: .8rem;
+  padding: .7rem 1.5rem; text-decoration: none;
+  border-left: 2px solid transparent;
+  transition: background .25s, border-color .25s;
+  cursor: pointer;
+}
+.toc-item:hover, .toc-item.active {
+  background: rgba(139,0,0,.1);
+  border-left-color: var(--rose);
+}
+.toc-num {
+  font-family: 'Cinzel', serif; font-size: .65rem; color: var(--rose);
+  opacity: .6; flex-shrink: 0; min-width: 20px;
+}
+.toc-item.active .toc-num { opacity: 1; }
+.toc-title {
+  font-family: 'EB Garamond', serif; font-size: .92rem;
+  color: var(--muted); line-height: 1.3;
+  transition: color .25s;
+}
+.toc-item.active .toc-title, .toc-item:hover .toc-title { color: var(--cream); }
+
+.sidebar-divider {
+  height: 1px; margin: 1.5rem 1.5rem;
+  background: linear-gradient(90deg, transparent, rgba(139,0,0,.3), transparent);
+}
+
+/* Music indicator in sidebar */
+#music-bar {
+  display: none; margin: 0 1.5rem;
+  align-items: center; gap: .7rem; cursor: pointer;
+  padding: .7rem 1rem;
+  border: 1px solid rgba(201,168,76,.1);
+  background: rgba(0,0,0,.3);
+  transition: border-color .3s;
+}
+#music-bar:hover { border-color: rgba(201,168,76,.3); }
+#music-bar span {
+  font-family: 'Cinzel', serif; font-size: .6rem; letter-spacing: .3em;
+  color: var(--muted); text-transform: uppercase;
+}
+.mbars { display: flex; align-items: flex-end; gap: 2px; height: 14px; }
+.mbars div {
+  width: 2px; background: var(--rose); border-radius: 1px;
+  animation: mbar .8s ease-in-out infinite;
+}
+.mbars div:nth-child(1){height:4px;  animation-delay:0s}
+.mbars div:nth-child(2){height:10px; animation-delay:.2s}
+.mbars div:nth-child(3){height:6px;  animation-delay:.4s}
+.mbars div:nth-child(4){height:12px; animation-delay:.15s}
+.mbars div:nth-child(5){height:7px;  animation-delay:.35s}
+@keyframes mbar { 0%,100%{transform:scaleY(.3)} 50%{transform:scaleY(1)} }
+
+/* ══════════════════════════════════════════
+   MAIN READER
+══════════════════════════════════════════ */
+#main { display: none; padding-top: 56px; transition: margin-left .35s ease; }
+#main.sidebar-open { margin-left: var(--sidebar-w); }
+
+.book-hero {
+  min-height: 60vh;
+  background:
+    radial-gradient(ellipse at 50% 60%, rgba(139,0,0,.18) 0%, transparent 55%),
+    linear-gradient(180deg, #0a0003 0%, #080008 50%, #060002 100%);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; padding: 6rem 2rem 5rem;
+  border-bottom: 1px solid rgba(139,0,0,.12);
+  position: relative;
+}
+.hero-overline {
+  font-family: 'Cinzel', serif; font-size: .65rem;
+  letter-spacing: .7em; color: var(--rose); opacity: .6;
+  text-transform: uppercase; margin-bottom: 2rem;
+}
+.hero-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(2.5rem, 7vw, 5.5rem); font-weight: 900;
+  color: var(--gold); letter-spacing: .05em; line-height: 1.05;
+  text-shadow: 0 0 60px rgba(201,168,76,.4), 0 0 100px rgba(139,0,0,.2);
+  margin-bottom: 1.2rem;
+}
+.hero-author {
+  font-family: 'Playfair Display', serif; font-style: italic;
+  font-size: clamp(1rem, 2.2vw, 1.4rem); color: var(--muted);
+  letter-spacing: .2em; margin-bottom: 2.5rem;
+}
+.hero-rule {
+  width: 200px; height: 1px; margin: 0 auto 2.5rem;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent); opacity: .3;
+}
+.hero-epigraph {
+  font-family: 'Playfair Display', serif; font-style: italic;
+  font-size: clamp(.95rem, 2vw, 1.2rem); color: var(--muted);
+  max-width: 480px; line-height: 1.9; opacity: .75;
+}
+.hero-epigraph cite {
+  display: block; margin-top: 1rem; font-style: normal;
+  font-family: 'Cinzel', serif; font-size: .65rem;
+  letter-spacing: .35em; color: var(--rose); opacity: .6;
+}
+
+/* ── CHAPTERS ── */
+.chapter {
+  max-width: 720px; margin: 0 auto;
+  padding: 5rem 2rem 3rem;
+  border-bottom: 1px solid rgba(139,0,0,.08);
+  position: relative;
+}
+
+.chapter-header { text-align: center; margin-bottom: 4rem; position: relative; }
+
+.chapter-ghost-num {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -55%);
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(6rem, 18vw, 14rem); font-weight: 900;
+  color: var(--crimson); opacity: .04;
+  line-height: 1; pointer-events: none; user-select: none;
+  letter-spacing: -.02em;
+}
+
+.chapter-eyebrow {
+  font-family: 'Cinzel', serif; font-size: .65rem;
+  letter-spacing: .6em; color: var(--rose); opacity: .5;
+  text-transform: uppercase; margin-bottom: 1.2rem;
+}
+.chapter-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(1.5rem, 4vw, 2.8rem);
+  color: var(--gold); letter-spacing: .06em; line-height: 1.2;
+  text-shadow: 0 0 30px rgba(201,168,76,.2);
+  margin-bottom: .8rem;
+}
+.chapter-subtitle {
+  font-family: 'Playfair Display', serif; font-style: italic;
+  font-size: clamp(.85rem, 1.8vw, 1rem); color: var(--muted);
+  line-height: 1.6; max-width: 460px; margin: 0 auto;
+  opacity: .7;
+}
+.chapter-meta {
+  margin-top: 1.5rem; font-family: 'Cinzel', serif; font-size: .6rem;
+  letter-spacing: .4em; color: var(--faint); text-transform: uppercase;
+}
+.chapter-rule {
+  width: 80px; height: 1px; margin: 2rem auto 0;
+  background: linear-gradient(90deg, transparent, var(--crimson), transparent);
+  opacity: .5;
+}
+
+/* body text */
+.chapter-body { position: relative; }
+.chapter-body p {
+  font-size: clamp(1rem, 2vw, 1.15rem);
+  line-height: 1.95;
+  color: #d4c5ab;
+  margin-bottom: 1.5rem;
+  letter-spacing: .01em;
+}
+.chapter-body p.dropcap::first-letter {
+  float: left; font-family: 'Cinzel Decorative', serif;
+  font-size: 4.8em; line-height: .82; color: var(--crimson);
+  margin: .06em .12em 0 0;
+  text-shadow: 0 0 20px rgba(139,0,0,.4);
+}
+.chapter-body em { color: var(--cream); font-style: italic; }
+.chapter-body blockquote.pull-quote {
+  margin: 2.5rem 0; padding: 1.5rem 2rem;
+  border-left: 2px solid var(--crimson);
+  background: rgba(139,0,0,.06);
+  font-family: 'Playfair Display', serif; font-style: italic;
+  font-size: clamp(.95rem, 2vw, 1.12rem);
+  color: var(--cream); line-height: 1.9;
+  position: relative;
+}
+.chapter-body blockquote.pull-quote::before {
+  content: '\201C';
+  position: absolute; top: -.2rem; left: .5rem;
+  font-size: 4rem; color: var(--crimson); opacity: .2;
+  font-family: Georgia, serif; line-height: 1;
+}
+
+.chapter-end { text-align: center; padding: 3rem 0 1rem; }
+.end-ornament { color: var(--rose); opacity: .3; letter-spacing: 1rem; font-size: 1rem; }
+
+/* petals */
+#petals { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+.petal {
+  position: absolute; top: -40px; color: var(--rose);
+  animation: pFall linear infinite; pointer-events: none;
+  filter: blur(.3px);
+}
+@keyframes pFall {
+  0%  { transform: translateY(0) rotate(0deg) translateX(0); opacity: 0; }
+  5%  { opacity: .5; }
+  50% { transform: translateY(50vh) rotate(360deg) translateX(25px); }
+  95% { opacity: .2; }
+  100%{ transform: translateY(110vh) rotate(700deg) translateX(-15px); opacity: 0; }
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 700px) {
+  :root { --sidebar-w: 240px; }
+  #main.sidebar-open { margin-left: 0; }
+  #sidebar { z-index: 600; box-shadow: 4px 0 24px rgba(0,0,0,.6); }
+  .chapter { padding: 4rem 1.2rem 2rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── ENTRANCE ── -->
+<div id="entrance">
+  <div class="e-petals" id="ePetals"></div>
+  <p class="e-overline">A Gothic Novella</p>
+  <h1 class="e-title">The Velvet<br/>Hours</h1>
+  <p class="e-author">by Ashveil & Shadow</p>
+  <div class="e-divider"></div>
+  <p class="e-desc">Six chapters. One house. A woman who arrives at an inheritance and discovers it has been expecting her.</p>
+  <button class="e-btn" onclick="enterSite()">Open the Book</button>
+  <div class="e-heartbeat">&#10022; &#10022; &#10022;</div>
+</div>
+
+<!-- ── MUSIC AWAKEN ── -->
+<div id="music-awaken">
+  <div class="aw-note">&#9834;</div>
+  <h2 class="aw-title">Set the Atmosphere</h2>
+  <p class="aw-sub">Let the music breathe alongside the prose</p>
+  <button class="aw-play" onclick="startMusic()">&#9834; &nbsp; Play the Score</button>
+  <button class="aw-skip" onclick="skipMusic()">Read in silence</button>
+</div>
+
+<!-- YOUTUBE -->
+<div id="yt-box"></div>
+
+<!-- PROGRESS -->
+<div id="progress-bar"></div>
+
+<!-- PETALS -->
+<div id="petals"></div>
+
+<!-- TOPBAR -->
+<header id="topbar">
+  <button class="topbar-toggle" onclick="toggleSidebar()" aria-label="Toggle chapters">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="topbar-book">The Velvet Hours</div>
+  <div class="topbar-controls">
+    <button class="font-btn" onclick="changeFontSize(-1)">A&#8722;</button>
+    <button class="font-btn" onclick="changeFontSize(1)">A+</button>
+  </div>
+</header>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <p class="sidebar-label">Chapters</p>
+  <a class="toc-item" href="#chapter-I" onclick="activateToc(this)">
+  <span class="toc-num">I</span>
+  <span class="toc-title">The Inheritance</span>
+</a>
+<a class="toc-item" href="#chapter-II" onclick="activateToc(this)">
+  <span class="toc-num">II</span>
+  <span class="toc-title">The First Night</span>
+</a>
+<a class="toc-item" href="#chapter-III" onclick="activateToc(this)">
+  <span class="toc-num">III</span>
+  <span class="toc-title">The Diary</span>
+</a>
+<a class="toc-item" href="#chapter-IV" onclick="activateToc(this)">
+  <span class="toc-num">IV</span>
+  <span class="toc-title">The Garden</span>
+</a>
+<a class="toc-item" href="#chapter-V" onclick="activateToc(this)">
+  <span class="toc-num">V</span>
+  <span class="toc-title">The Other Woman</span>
+</a>
+<a class="toc-item" href="#chapter-VI" onclick="activateToc(this)">
+  <span class="toc-num">VI</span>
+  <span class="toc-title">The Truth in the Walls</span>
+</a>
+
+  <div class="sidebar-divider"></div>
+  <div id="music-bar" onclick="toggleMusicInfo()">
+    <div class="mbars"><div></div><div></div><div></div><div></div><div></div></div>
+    <span>Now Playing</span>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div id="main">
+  <!-- Hero -->
+  <div class="book-hero">
+    <p class="hero-overline">&#10022; &nbsp; A Gothic Novella &nbsp; &#10022;</p>
+    <h1 class="hero-title">The Velvet<br/>Hours</h1>
+    <p class="hero-author">by Ashveil &amp; Shadow</p>
+    <div class="hero-rule"></div>
+    <p class="hero-epigraph">
+      "A house is never simply a place to live.<br/>
+      It is a record of everyone who has lived in it,<br/>
+      and of everyone who has not yet arrived."
+      <cite>&#10022; &nbsp; Epigraph &nbsp; &#10022;</cite>
+    </p>
+  </div>
+
+  <!-- Chapters -->
+  
+<section class="chapter" id="chapter-I">
+  <div class="chapter-header">
+    <div class="chapter-ghost-num">I</div>
+    <div class="chapter-eyebrow">Chapter I</div>
+    <h2 class="chapter-title">The Inheritance</h2>
+    <p class="chapter-subtitle">In which Eleanor arrives at a house that has been waiting for her</p>
+    <div class="chapter-meta">
+      <span>&#10022; 4 min read &#10022;</span>
+    </div>
+    <div class="chapter-rule"></div>
+  </div>
+  <div class="chapter-body">
+    <p class="dropcap">The letter arrived on a Thursday, written in the hand of a solicitor who clearly believed in the weight of ceremony. It informed Eleanor Ashveil — in three dense paragraphs of legal language that smelled faintly of old offices and older decisions — that her grandmother had died, that the house on the Moor Road was now hers, and that the property came with a condition she was not, under any circumstances, to leave it empty for longer than a season.</p><p>Eleanor read the letter twice on her narrow balcony in the city, the sounds of traffic rising from below like something arguing with the silence the letter required. She had not seen her grandmother in eleven years. She had not known, until now, that she had a grandmother who owned a house, or that the woman had apparently spent those eleven years maintaining a property that no one lived in, paying taxes on it, keeping its garden tended by someone whose name appeared nowhere in any of the documents she was later given.</p><p>She arrived at Ashveil Manor on a grey Tuesday in October, which she would later think of as the appropriate weather for beginnings that do not intend to be cheerful. The house sat at the end of a long drive that cut through a field of heather gone brown with the season, and her first thought, seeing it rise out of the mist at the end of that drive, was not <em>home</em> and not <em>fear</em> but something between the two — a recognition that had no object, as though she were remembering something she had never experienced.</p><p>The house was larger than she had imagined. Three storeys of grey stone, windows that caught the light in a way that made them look illuminated from within even in the flat October noon. Ivy had made its claim on the east wing with some authority. The front steps were swept clean. Someone had placed a pot of late-season rosemary beside the door, and this detail — the rosemary, its ordinary domestic insistence — unsettled her more than anything else had so far.</p><p>The key in the envelope was iron and old, heavier than it should have been. It turned in the lock with a sound like something exhaling.</p><p>Inside, the house smelled of stone and of something else she could not name — not damp, not dust, but something drier and older, like the pages of a book that has not been opened in many years but has been kept, carefully, in a place where the light does not reach it. The entrance hall was wide, panelled in dark wood, hung with portraits she did not recognize. A staircase curved upward into shadow. The floors were clean.</p><p>She walked through the ground floor slowly, a woman in her own home for the first time, turning lights on as she went. The kitchen was large and cold, equipped in a way that suggested someone had believed in both cooking and silence. The drawing room held furniture covered in white sheets, which she did not remove. The library — she found it at the end of the west corridor — was not covered in anything. Its shelves were full, its reading chair was positioned precisely toward the window, and on the small table beside it sat a glass that still held, at its bottom, the ghost of something amber.</p><p>Eleanor stood in the library doorway for a long time.</p><p>She did not believe in presences, in atmospheres, in houses that held the residue of their inhabitants like cloth holds perfume. She was thirty-one years old, a librarian by training and by temperament, a person who trusted what could be verified and held lightly what could not. She had driven five hours through the October countryside with a car full of her own books and a sensible attitude toward inheritance.</p><p>But standing in that doorway, looking at the reading chair and the glass and the books that filled the shelves from floor to ceiling in an order she did not yet understand, she felt, with a clarity that had nothing to do with reason, that the room had not been waiting for her grandmother to leave it.</p><p>It had been waiting for her to arrive.</p><p>She put down her bag, sat in the chair, and picked up the glass. It smelled of whiskey and of something she could not identify — something floral, like something crushed rather than grown. She set it down again very carefully.</p><p>Outside the library window, the garden was grey and still. The heather moved once, as though something had passed through it, and then was quiet.</p><p>Eleanor opened the first book she found on the shelf nearest her hand. It was a volume of poetry she had never read, and the first line, in the particular silence of that house, felt less like a sentence and more like an answer to a question she had not yet thought to ask.</p><p>She read until the light changed, and the room grew dim around her, and the garden outside became invisible, and she was alone in the lamplight with the words and the silence and the sense, which she could not shake, that somewhere in the house behind her, something was listening to her breathe.</p>
+  </div>
+  <div class="chapter-end">
+    <span class="end-ornament">&#10022; &#10022; &#10022;</span>
+  </div>
+</section>
+
+<section class="chapter" id="chapter-II">
+  <div class="chapter-header">
+    <div class="chapter-ghost-num">II</div>
+    <div class="chapter-eyebrow">Chapter II</div>
+    <h2 class="chapter-title">The First Night</h2>
+    <p class="chapter-subtitle">In which the house reveals what daylight had concealed</p>
+    <div class="chapter-meta">
+      <span>&#10022; 4 min read &#10022;</span>
+    </div>
+    <div class="chapter-rule"></div>
+  </div>
+  <div class="chapter-body">
+    <p class="dropcap">The servants — she could not think of them as anything else, though the word felt like something borrowed from another century — arrived at seven the following morning. There were two of them: a woman named Mrs. Crale who managed the house and who communicated primarily in implication, and a man called Thomas who appeared to manage everything Mrs. Crale did not, and who communicated not at all.</p><p>Mrs. Crale showed her the house's functions with the brisk economy of someone performing a task that should have been performed years ago. She explained the heating system, the water, the generator that backed up the electricity when the storms came in from the moor. She did not explain the portraits in the entrance hall, and when Eleanor asked about them, she said only that they were <em>the family</em>, as though this were sufficient, as though Eleanor should already know which family and what it meant for them to be watching from those gilded frames.</p><p>When Eleanor asked about the garden — who had tended it, who tended it still, since it was clearly maintained with some regularity — Mrs. Crale looked at the window instead of at her.</p><p>"The garden tends itself," she said, and moved on to explain the window locks.</p><p>Eleanor slept badly the first night, which she attributed to the unfamiliar mattress and the particular quality of silence that large old houses contain, which is not the absence of sound but the presence of a different kind of sound — the breathing of the structure itself, the settling of its weight, the conversations between wood and stone that humans mistake for quiet.</p><p>She woke at three in the morning with the certainty that she had heard something, though she could not say what. Not a voice, not a footstep, but something more diffuse than either — a quality of the air, as though the room's atmosphere had shifted while she slept, as though someone had passed through it and left the faintest displacement in their wake.</p><p>She lay still for some time, listening. The house was quiet. She got up.</p><p>She had developed the habit, in her years as a night-reader, of moving through dark places without turning lights on — she knew the geography of wherever she lived by its shadows, and she found that darkness, properly inhabited, was less lonely than half-light. She walked the corridor from her bedroom toward the staircase, her hand trailing the wall, and she was nearly at the top of the stairs before she saw it.</p><p>The door at the end of the corridor — the one she had not tried, the one that did not match the others in its proportions or its hardware — had a light beneath it.</p><p>Not the cold light of a window, not the orange of a streetlamp finding its way in. A warm light, moving. Like candlelight, though she could not understand why anyone would have left a candle burning in a locked room.</p><p>She stood at the end of the corridor for perhaps two minutes, watching the light move with the slow pulse of a flame in still air, and she thought about all the reasonable explanations and found that none of them fit the particular quality of stillness that surrounded that door, the way the corridor seemed to end just slightly before it reached that room, as though the house made a distinction between the space Eleanor occupied and the space beyond that threshold.</p><p>She tried the handle. Locked. Of course.</p><p>She went back to her room and lay in the dark and did not sleep until the light had been grey for an hour, and in the morning when she came down, Mrs. Crale was in the kitchen making tea, and Thomas was in the garden with a barrow, and the light beneath the locked door was absent, and the door looked only like a door.</p><p>"What is the room at the end of the east corridor?" Eleanor asked, over tea.</p><p>Mrs. Crale did not look up from her cup. "There is no room at the end of the east corridor."</p><p>Eleanor considered this. "The door with the iron handle," she said. "The one that looks older than the others."</p><p>A pause. The sound of tea being stirred. "That door has been locked since before I came to the house. Your grandmother kept the key herself. I don't know where it is now."</p><p>"What's inside it?"</p><p>Mrs. Crale looked at her then, directly, with an expression that was not quite warning and not quite grief, but which lived in the territory between them. "I wouldn't know," she said. "But your grandmother always said that some rooms in a house are rooms in name only — that what they actually are is <em>safekeeping</em>."</p><p>She picked up her cup and left Eleanor with the cooling tea and the morning light coming through the kitchen window in long flat angles, and the sound of Thomas in the garden with his barrow, working with the quiet efficiency of someone who has never once been curious about what he tends.</p>
+  </div>
+  <div class="chapter-end">
+    <span class="end-ornament">&#10022; &#10022; &#10022;</span>
+  </div>
+</section>
+
+<section class="chapter" id="chapter-III">
+  <div class="chapter-header">
+    <div class="chapter-ghost-num">III</div>
+    <div class="chapter-eyebrow">Chapter III</div>
+    <h2 class="chapter-title">The Diary</h2>
+    <p class="chapter-subtitle">In which the past speaks in a handwriting not entirely unfamiliar</p>
+    <div class="chapter-meta">
+      <span>&#10022; 4 min read &#10022;</span>
+    </div>
+    <div class="chapter-rule"></div>
+  </div>
+  <div class="chapter-body">
+    <p class="dropcap">She found the diary on the fifth day, which was also the day the weather changed and the moor came closer, the way moors do in autumn — not moving exactly, but asserting some claim on the middle distance that the summer had held back. She had spent the intervening days reading the library's contents in the systematic way she had applied to every collection she had ever encountered, working left to right, shelf by shelf, noting the order — which was not alphabetical, not by subject, but by something she could not yet determine, some private logic that implied the collection had been built for reading rather than keeping.</p><p>The diary was behind a volume of botanical illustrations on the third shelf. She found it only because the botanical illustrations were the one book in the library that seemed placed without reason — slightly off from the shelf's logic, its spine not flush with the others, as though it had been pushed in hastily or pulled out and replaced. She moved it to correct it and found the gap and, in the gap, the diary.</p><p>It was small, leather-bound, its cover a deep brown that had once been red. The initials on the cover were M.A., and she understood from the solicitor's documents that her grandmother's name had been Margaret — Margot to everyone who had known her, but Margaret on the legal papers, Margaret on the deed to the house.</p><p>Eleanor sat in the reading chair and opened the diary to the first entry, written in a hand that was smaller and neater than she expected, with a slight backward slant that seemed to lean away from whatever it was describing.</p><blockquote class="pull-quote">"The house knows we are here. I am not speaking poetically. I have lived long enough with things that cannot be explained to know the difference between atmosphere and awareness, and what this house has is awareness. It does not do anything with it. It simply watches, and waits, and tends."</blockquote><p>The date on this first entry was thirty-eight years ago. Eleanor's grandmother had been forty-three when she wrote it, which meant she had come to the house already middle-aged, already formed, and the house had done something to that formation that the diary was, from its first page, trying to describe.</p><p>Eleanor read for three hours without moving. The light shifted around her, the lamp on the table making its small claim against the darkening afternoon, and outside the window the garden moved in the wind and the house breathed its particular breath, and she read.</p><p>Her grandmother had not believed in the house when she arrived, either. She had been, by her own accounting, a practical woman — a former schoolteacher, twice married and twice widowed, someone who had arranged her life around what could be managed and let go of the rest. She had inherited the house from an aunt she barely remembered, under a condition identical to Eleanor's own: do not leave it empty for longer than a season.</p><p>The early entries described the house with the skepticism of someone determined not to be moved by atmosphere. They noted the dimensions of the rooms, the state of the plumbing, the inconsistency of the heating. They recorded Mrs. Crale's predecessor — a woman of the same type, the same implication-heavy economy of communication — with the wary respect of someone who suspected they were being evaluated by a standard they did not yet understand.</p><p>And then, on the forty-third page, the tone changed.</p><p><em>I have been in the locked room.</em></p><p>Eleanor held very still.</p><p><em>I will not describe what I found there. Not because I am afraid of putting it into words, but because I am not certain words are the right mechanism for it. What I will say is this: the room is not locked to keep us out. It is locked to keep something in — and not in the sense of imprisonment, nothing so violent as that. More in the sense of preservation. Whatever lives in that room has chosen to live there, and the lock is its own request.</em></p><p><em>I have spoken with it. I will not record what was said. There are things that become less true when written down, that need the privacy of the mind to maintain their integrity. I will only say this: the bargain that was made with this house, generations ago, was not a dark bargain. It was a generous one. And we are its beneficiaries, every one of us who comes here and stays and learns to be quiet enough to listen.</em></p><p>The diary continued for two hundred pages after this. Eleanor read them all before the evening was finished. She ate nothing. She drank the tea that Mrs. Crale brought without tasting it. She read until she reached the last entry, which was dated six weeks before her grandmother's death, and which said only:</p><p><em>Eleanor will come. I have made sure of it. She is the right one — she has the quality of listening. She will understand the garden, eventually. The important things always arrive eventually, for those who do not rush them.</em></p><p>Eleanor closed the diary and sat for a very long time in the lamplight, listening to the house breathe, and thought about what it meant to be expected.</p>
+  </div>
+  <div class="chapter-end">
+    <span class="end-ornament">&#10022; &#10022; &#10022;</span>
+  </div>
+</section>
+
+<section class="chapter" id="chapter-IV">
+  <div class="chapter-header">
+    <div class="chapter-ghost-num">IV</div>
+    <div class="chapter-eyebrow">Chapter IV</div>
+    <h2 class="chapter-title">The Garden</h2>
+    <p class="chapter-subtitle">In which something is found that has no name in any catalogue</p>
+    <div class="chapter-meta">
+      <span>&#10022; 4 min read &#10022;</span>
+    </div>
+    <div class="chapter-rule"></div>
+  </div>
+  <div class="chapter-body">
+    <p class="dropcap">She went into the garden the following morning for the first time — properly, with intention, rather than passing through it as a distance to cross. The weather had cleared overnight into the cold, clean clarity that October sometimes offers as apology for the grey that preceded it, and the garden in that light was so different from what she had seen through the library window that she stopped at the gate and made herself look at it for a full minute before she went in.</p><p>It should not have been beautiful. The season was too far advanced for it, the heather on the moor too brown, the light too pale. But the garden was beautiful — not in the arranged way of gardens designed to impress, but in the way of things that are cared for by someone who understands what they are. The borders were not symmetrical. The paths did not make obvious sense. But everything that grew there grew with a confidence that implied it was exactly where it had chosen to be, and the effect of all this confident growing was something that felt less like design and more like presence.</p><p>Thomas was not there. She had noticed, without yet articulating it, that Thomas was never in the garden when she was, though the evidence of his work was always fresh — freshly turned earth, freshly cut paths, barrows empty and neatly stowed. She had begun to understand that the house arranged things this way, that it managed the geography of its inhabitants with a subtlety that made the arrangement feel accidental.</p><p>She walked the paths slowly, naming what she could. Rosemary and lavender, late-flowering and grey with the season. Something tall and skeletal that had been magnificent in summer and was magnificent now in a different, starker way. Old roses — she recognized them by their thorns, by the hips they had made from the flowers she had not been there to see. A yew hedge, dense and dark and cut to a height that made it feel architectural rather than botanical.</p><p>In the centre of the garden, past the yew and down three stone steps, was a space she had not seen from the window. A circle of old grass, short and dark, surrounded by something low and fragrant she could not name. In the centre of the circle was a stone — not a standing stone, not a monument, but a flat stone roughly the size and shape of a tabletop, its surface worn smooth, its edge slightly damp with moss.</p><p>On the stone was a single object: a glass bottle, clear, containing what appeared to be water, though the water had a quality to it that water does not usually have — it caught the light differently, as though it had a surface tension the physics of water does not quite explain. Beside the bottle was a sprig of something she did not recognize, with small dark leaves and flowers so pale they were almost white, and a smell she could only describe as the smell of something very old that has not yet given up.</p><p>She looked at these things for a long time without touching them.</p><p>She was not a superstitious person. She did not believe in offerings or in sacred spaces or in the animism that attributed will and intention to objects and places. But she had spent five days in a house that had been waiting for her, and she had read her grandmother's diary in its entirety, and she was standing in a garden that no one had been in that morning and which already, somehow, felt as though it had been arranged for her arrival.</p><p>She picked up the sprig. Its smell intensified — not unpleasantly, but with a clarity that made her think of very early mornings, of the quality of air before the day has decided what it will be. She held it for a moment and then set it down with the same precision with which she would shelve a book she was not ready to put away.</p><p>She sat on the step that led into the circle and spent an hour there, doing nothing in particular — not reading, not thinking in any directed way, simply occupying the space the way the rosemary occupied its border, with no particular agenda beyond the fact of being present. The garden was quiet around her. Not empty-quiet, but full-quiet. The way a room is quiet when it contains someone who has learned to be still.</p><p>When she went back inside, Mrs. Crale was in the kitchen with a look she had come to recognize as approval expressed through the absence of disapproval, and Thomas's barrow was where it always was, empty, its wheel slightly turned, as though it had just been set down.</p><p>Eleanor made tea and did not ask any of the questions she had, because she was beginning to understand that the house answered questions differently than people did — not in words, but in the particular arrangement of what it showed you, and when, and in what light.</p>
+  </div>
+  <div class="chapter-end">
+    <span class="end-ornament">&#10022; &#10022; &#10022;</span>
+  </div>
+</section>
+
+<section class="chapter" id="chapter-V">
+  <div class="chapter-header">
+    <div class="chapter-ghost-num">V</div>
+    <div class="chapter-eyebrow">Chapter V</div>
+    <h2 class="chapter-title">The Other Woman</h2>
+    <p class="chapter-subtitle">In which Eleanor meets something that should not exist and finds it perfectly reasonable</p>
+    <div class="chapter-meta">
+      <span>&#10022; 4 min read &#10022;</span>
+    </div>
+    <div class="chapter-rule"></div>
+  </div>
+  <div class="chapter-body">
+    <p class="dropcap">She saw the woman for the first time on the seventh day, which she understood later was probably not a coincidence — that the house had a sense of time that was not exactly human but was not entirely alien to it either, and that seven days was the house's minimum for deciding whether someone was worth introducing.</p><p>Eleanor was in the library, as she was most mornings now, reading the library's books in their mysterious order, which she was beginning to parse — not alphabetical, not by subject, but by argument, she thought, by the way the books answered each other across the centuries, a long slow conversation that her grandmother had arranged and that she was only beginning to overhear. She was in the middle of a passage about the nature of thresholds — specifically, the old belief that thresholds were not neutral spaces but active ones, places where the ordinary rules of location and identity were temporarily suspended — when she looked up and saw the woman in the garden.</p><p>She was standing near the yew hedge, looking at something Eleanor could not see from the library window. She was dressed in a way that was either old-fashioned or timeless, depending on how you looked at it — a long dark coat, her hair up, her hands in her pockets with the ease of someone who has been standing in that garden for a very long time and has no intention of leaving. She had her back to the window.</p><p>Eleanor's first thought was simply: <em>Mrs. Crale has a sister.</em> Some relation, some visitor she hadn't been told about. She went to the front door to say hello.</p><p>By the time she reached the garden gate, the woman was not near the yew hedge. She was not anywhere Eleanor could see. The garden was empty except for the wind, which moved through the heather with its usual indifference, and the rosemary near the path, which was doing what rosemary does.</p><p>She asked Mrs. Crale at lunch if anyone had been in the garden that morning.</p><p>"No," said Mrs. Crale, and there was nothing in her voice or her expression that suggested the answer was anything but straightforward.</p><p>Eleanor saw the woman three more times in the following week. Always in the garden, always with her back to the window, always gone by the time Eleanor reached the gate. She did not ask Mrs. Crale again. She was not sure what she was asking about.</p><p>On the eleventh day — she had begun, without deciding to, to count them — she went directly to the garden when she saw the woman, without going to the door first, without crossing the house. She went through the library window, which opened easily onto the garden's edge, which she recognized as the house facilitating something it wanted her to do.</p><p>The woman was standing by the stone in the centre of the yew circle. She had her back to Eleanor, as always, but this time she did not disappear. She turned.</p><p>Eleanor had been prepared for many things. She had been preparing, for eleven days, for the possibility of something that could not be explained. She had not been prepared for the particular thing that could not be explained, which was this: the woman's face was her own face, or close enough to her own face that the differences were the differences between a photograph and a mirror — the small reversals of familiarity, the slight adjustments of angle and light. The same bones, differently carried. The same eyes, looking back at her from a distance of perhaps thirty feet and perhaps thirty years.</p><p>They looked at each other for a long time. The garden was perfectly still. Eleanor was aware that she should have been frightened and was not — she was too attentive to be frightened, too engaged with trying to read what she was seeing, which was what she did with things that resisted explanation: she looked at them very carefully.</p><p>The woman — the other woman — smiled. It was a smile of recognition and of something else, something that might have been relief.</p><p>Then she turned back to the stone, and bent over it, and was gone.</p><p>Not gone in the way of someone leaving. Gone in the way of something resolving — the way a sound finishes rather than stops, a quality of completion rather than absence.</p><p>Eleanor stood in the circle for a long time after, and the garden was quiet around her, and the stone was warm under her hand though the morning was cold, and she thought about her grandmother's diary — <em>I have spoken with it</em> — and began to understand that the conversation she was being invited into was not exactly a conversation, and not exactly an inheritance, but something more like a lesson that could only be learned by being in a particular place and paying a particular quality of attention.</p><p>She went back to the library and found the diary and turned to the page she had not understood on first reading, the one that said: <em>She is not a ghost. She is what the house keeps. She is what we become, those of us who stay long enough to understand it, and she is also, I believe, what we were before we arrived.</em></p>
+  </div>
+  <div class="chapter-end">
+    <span class="end-ornament">&#10022; &#10022; &#10022;</span>
+  </div>
+</section>
+
+<section class="chapter" id="chapter-VI">
+  <div class="chapter-header">
+    <div class="chapter-ghost-num">VI</div>
+    <div class="chapter-eyebrow">Chapter VI</div>
+    <h2 class="chapter-title">The Truth in the Walls</h2>
+    <p class="chapter-subtitle">In which all the doors open, and what is found inside is not darkness</p>
+    <div class="chapter-meta">
+      <span>&#10022; 5 min read &#10022;</span>
+    </div>
+    <div class="chapter-rule"></div>
+  </div>
+  <div class="chapter-body">
+    <p class="dropcap">The key to the locked room was in the botanical illustrations. She found it three weeks after she arrived, on a morning that had the particular quality of mornings that are ready for something — a brightness that seemed intentional rather than meteorological, a stillness in the house that was different from its ordinary stillness. She had gone to the shelf to return the book — she had finally read it, every page, a survey of plants that no longer existed, drawn with an accuracy that implied the artist had loved them — and when she set it back in its place, something shifted, and the key was there, on the shelf behind where the book had stood, as though it had been placed there recently and patiently.</p><p>It was iron, like the front door key, but smaller, warmer to the touch than metal should have been in that cool room, and engraved on its bow with a mark she recognized from the stone in the garden: a simple knot, symmetrical, the kind of mark that appears in every culture in every century, because it describes something about the structure of connection that the human hand keeps finding its way back to regardless of era or instruction.</p><p>She went upstairs at noon. Mrs. Crale was out. Thomas was somewhere in the garden's periphery. The house was as quiet as it had been the day she arrived, but the quality of the quiet had changed — it was no longer the quiet of waiting but of anticipation, which is different in the way that an inheld breath is different from simple stillness.</p><p>The door at the end of the east corridor opened without resistance. The key turned easily, as though the lock had been maintained. As though someone had come to it regularly and kept its mechanisms in order and ready for this exact moment.</p><p>The room beyond was small. Smaller than she had expected — just a room, the size of a generous study, with a window that looked out over a part of the garden she had not seen from any other angle, a tucked and private corner where something grew in a contained way, shaped like a spiral. The walls were lined with photographs, dozens of them, different eras and different styles, but all the same subject: women in this garden, women in this house, women in this room — looking out this window with their hands folded or their arms crossed or their heads slightly tilted in the particular way of people who are listening to something the camera cannot record.</p><p>Eleanor looked at these women for a long time. Some of them she recognised from the portraits in the entrance hall. Some she did not. All of them had, in their expressions, the quality she was beginning to recognise in herself — not peace exactly, not happiness, but something more durable than either, the look of someone who has arrived somewhere that explains the journey.</p><p>There was a chair by the window, turned to face the garden. On the table beside it was a blank diary, its leather cover the deep brown of something that had been red and had settled into itself over time. A pen beside it. And a note, written on paper so old it had gone the colour of the walls, in a hand she did not recognise but which felt like something she might write, given enough time:</p><blockquote class="pull-quote">This room is yours now. It has been yours for longer than you have been here. What the house keeps is not a secret and not a haunting — it is a record. Every woman who comes here and stays and learns to listen adds to it. The woman you saw in the garden is what you are becoming. She is also what you were. The house has always known this. It simply waited for you to be ready to know it too.<br><br>Begin when you are ready. There is no urgency. There is only the garden, and the window, and the quiet, and the thing in you that knows how to use them.</blockquote><p>Eleanor sat in the chair for a long time. Outside, the garden was doing what the garden did — tending itself, or being tended by something she no longer needed to understand fully, only to appreciate. The spiral of whatever-it-was in the corner caught the light and held it differently than the rest of the garden, as though it had learned to.</p><p>She picked up the pen. She opened the diary to its first page.</p><p>She wrote the date — a grey Thursday in November, the right weather for beginnings that do not intend to be cheerful — and then she began.</p><p>She wrote until the light changed, and the garden became a shape rather than a collection of shapes, and the house settled into its evening breathing. She wrote what she had seen and what she had understood and what she had not understood and was not certain she needed to. She wrote about her grandmother and about the woman in the garden and about thresholds and about the quality of quiet that is not absence but presence. She wrote about arriving somewhere and recognising it without knowing why.</p><p>Mrs. Crale brought tea at five o'clock and set it on the small table by the door without a word, without any expression that named what was happening, with only the quiet efficiency of someone who has done this many times before and who understands that what it represents is not extraordinary but simply what the house does, what it has always done: it receives the people who are ready to be received, and it keeps them, gently, in the way that good places keep good things — not locked away, but held.</p><p>The lamp was warm. The tea was right. The pen moved across the paper with the ease of something that has found its proper use.</p><p>Outside, in the garden, in the grey and tended quiet of the November evening, the woman in the dark coat was standing by the yew hedge again, looking at something Eleanor could not see.</p><p>And this time, Eleanor smiled.</p><p>Because she understood, now, that what the woman was looking at — what she was always looking at, from the garden, with her back to the windows and her hands in her pockets and her face turned away — was not some mystery in the middle distance.</p><p>She was looking at the room at the end of the corridor.</p><p>She was looking at the lamp in the window.</p><p>She was looking at Eleanor.</p><p>And she was, in the patient and unhurried way of things that have been waiting for a very long time, finally satisfied.</p>
+  </div>
+  <div class="chapter-end">
+    <span class="end-ornament">&#10022; &#10022; &#10022;</span>
+  </div>
+</section>
+
+
+</div><!-- /#main -->
+
+<script>
+/* ── ENTRANCE PETALS ── */
+(function(){
+  var c = document.getElementById('ePetals');
+  var s = ['&#10022;','&#10025;','&#10033;','&#10038;','&#10040;'];
+  for(var i=0;i<20;i++){
+    var p = document.createElement('span'); p.className='e-petal';
+    p.innerHTML = s[i%s.length];
+    p.style.left=(Math.random()*100)+'%';
+    p.style.animationDuration=(5+Math.random()*10)+'s';
+    p.style.animationDelay=(Math.random()*8)+'s';
+    p.style.fontSize=(0.7+Math.random()*1.2)+'rem';
+    c.appendChild(p);
+  }
+})();
+
+/* ── MAIN PETALS ── */
+(function(){
+  var c = document.getElementById('petals');
+  var s = ['&#10022;','&#10033;','&#10025;'];
+  for(var i=0;i<25;i++){
+    var p = document.createElement('span'); p.className='petal';
+    p.innerHTML = s[i%s.length];
+    p.style.left=(Math.random()*100)+'%';
+    p.style.animationDuration=(9+Math.random()*15)+'s';
+    p.style.animationDelay=(Math.random()*18)+'s';
+    p.style.fontSize=(0.5+Math.random()*0.7)+'rem';
+    p.style.opacity = 0.15+Math.random()*0.3;
+    c.appendChild(p);
+  }
+})();
+
+/* ── ENTER ── */
+function enterSite(){
+  var entrance = document.getElementById('entrance');
+  var main     = document.getElementById('main');
+  var topbar   = document.getElementById('topbar');
+  var sidebar  = document.getElementById('sidebar');
+  var pb       = document.getElementById('progress-bar');
+  var awaken   = document.getElementById('music-awaken');
+  entrance.classList.add('fade-out');
+  setTimeout(function(){
+    entrance.style.display = 'none';
+    main.style.display   = 'block';
+    topbar.style.display = 'flex';
+    sidebar.style.display= 'block';
+    pb.style.display     = 'block';
+    main.classList.add('sidebar-open');
+    initScroll();
+    initTocHighlight();
+    setTimeout(function(){ awaken.style.display = 'flex'; }, 700);
+  }, 1400);
+}
+
+/* ── MUSIC ── */
+function startMusic(){
+  document.getElementById('music-awaken').style.display = 'none';
+  document.getElementById('music-bar').style.display = 'flex';
+  document.getElementById('yt-box').innerHTML =
+    '<iframe src="https://www.youtube.com/embed/wO3uAmwqFg8?autoplay=1&mute=0&loop=1&playlist=wO3uAmwqFg8&controls=0&modestbranding=1&rel=0" allow="autoplay; encrypted-media" allowfullscreen></iframe>';
+}
+function skipMusic(){
+  document.getElementById('music-awaken').style.display = 'none';
+}
+function toggleMusicInfo(){}
+
+/* ── SIDEBAR ── */
+var sidebarOpen = true;
+function toggleSidebar(){
+  var s = document.getElementById('sidebar');
+  var m = document.getElementById('main');
+  sidebarOpen = !sidebarOpen;
+  if(sidebarOpen){ s.classList.remove('collapsed'); m.classList.add('sidebar-open'); }
+  else           { s.classList.add('collapsed');    m.classList.remove('sidebar-open'); }
+}
+
+/* ── SCROLL PROGRESS ── */
+function initScroll(){
+  var pb = document.getElementById('progress-bar');
+  window.addEventListener('scroll', function(){
+    var doc = document.documentElement;
+    var scrollTop = window.scrollY || doc.scrollTop;
+    var total = doc.scrollHeight - doc.clientHeight;
+    var pct = total > 0 ? (scrollTop / total * 100) : 0;
+    pb.style.width = pct + '%';
+  }, {passive:true});
+}
+
+/* ── TOC HIGHLIGHT ── */
+function initTocHighlight(){
+  var chapters = document.querySelectorAll('.chapter');
+  var tocLinks = document.querySelectorAll('.toc-item');
+  var observer = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        var id = e.target.id;
+        tocLinks.forEach(function(l){
+          l.classList.toggle('active', l.getAttribute('href') === '#'+id);
+        });
+      }
+    });
+  },{rootMargin:'-30% 0px -60% 0px'});
+  chapters.forEach(function(c){ observer.observe(c); });
+}
+
+/* ── TOC CLICK ── */
+function activateToc(el){
+  document.querySelectorAll('.toc-item').forEach(function(l){ l.classList.remove('active'); });
+  el.classList.add('active');
+  if(window.innerWidth <= 700){ toggleSidebar(); }
+}
+
+/* ── FONT SIZE ── */
+var baseFontSize = 18;
+function changeFontSize(delta){
+  baseFontSize = Math.min(24, Math.max(14, baseFontSize + delta));
+  document.body.style.fontSize = baseFontSize + 'px';
+}
+</script>
+</body>
+</html>
